@@ -16,6 +16,7 @@ import org.junit.Test;
 
 import com.browseengine.bobo.geosearch.index.bo.GeoCoordinate;
 import com.browseengine.bobo.geosearch.index.impl.GeoIndexReader;
+import com.browseengine.bobo.geosearch.index.impl.GeoIndexUpgrader;
 import com.browseengine.bobo.geosearch.query.GeoQuery;
 import com.browseengine.bobo.geosearch.score.impl.Conversions;
 
@@ -42,7 +43,8 @@ public class GeoSearchBackwardsCompatabilityTest extends GeoSearchFunctionalTezt
     
     @Test
     public void testGeoSearch_merge() throws IOException {
-        buildGeoIndexWriter(true, false);
+        upgradeIndex();
+        buildGeoIndexWriter(directory);
         writer.forceMerge(1);
         writer.commit();
         
@@ -65,7 +67,8 @@ public class GeoSearchBackwardsCompatabilityTest extends GeoSearchFunctionalTezt
     
     @Test
     public void testGeoSearch_addNewDocuments() throws IOException {
-        buildGeoIndexWriter(true, false);
+        upgradeIndex();
+        buildGeoIndexWriter(directory);
         addDocuments();
         writer.commit();
         
@@ -76,6 +79,11 @@ public class GeoSearchBackwardsCompatabilityTest extends GeoSearchFunctionalTezt
         testGeoSearch(expectedResults);
     }
     
+    private void upgradeIndex() throws IOException {
+        GeoIndexUpgrader upgrader = new GeoIndexUpgrader(directory, config, geoConfig, false);
+        upgrader.upgrade();
+    }
+   
     public void testGeoSearch(List<String> expectedResults) throws IOException {
         GeoIndexReader reader = new GeoIndexReader(directory, geoConfig);
         IndexSearcher searcher = new IndexSearcher(reader);
@@ -85,7 +93,7 @@ public class GeoSearchBackwardsCompatabilityTest extends GeoSearchFunctionalTezt
         float kilometers = Conversions.mi2km(500);
          
         GeoQuery query = new GeoQuery(lattitude, longitude, kilometers);
-        TopDocs topDocs = searcher.search(query, 10);
+        TopDocs topDocs = searcher.search(query, 15);
         
         verifyExpectedResults(expectedResults, topDocs, searcher);
     }

@@ -99,15 +99,11 @@ public class GeoSearchFunctionalTezt {
     }
     
     void buildGeoIndexWriter(boolean useCompoundFileFormat) throws CorruptIndexException, LockObtainFailedException, IOException {
-        buildGeoIndexWriter(useCompoundFileFormat, true);
+        initDirectory(useCompoundFileFormat);
+        buildGeoIndexWriter(directory);
     }
     
-    void buildGeoIndexWriter(boolean useCompoundFileFormat, boolean initDirectoryAndConfig) throws CorruptIndexException, LockObtainFailedException, IOException {
-        
-        if(initDirectoryAndConfig) {
-            initDirectory(useCompoundFileFormat);
-        }
-        
+    void buildGeoIndexWriter(Directory directory) throws CorruptIndexException, LockObtainFailedException, IOException {
         writer = new GeoIndexWriter(directory, config, geoConfig);
     }
     
