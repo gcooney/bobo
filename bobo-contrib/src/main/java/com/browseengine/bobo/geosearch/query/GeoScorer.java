@@ -235,8 +235,6 @@ public class GeoScorer extends Scorer {
      */
     @Override
     public int docID() {
-        assert docid >= 0;
-
         return docid;
     }
 
